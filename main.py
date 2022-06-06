@@ -17,21 +17,32 @@ except:
 
 
 def welcome():
-    pc.printout("-"*80)
-    pc.printout("\nWelcome to the VK scraper\n")
-    pc.printout("Remember to praise the sun and follow the instructions\n")
+    pc.printout("-" * 80)
+    pc.printout(" _   _ _   __  _____                                \n", pc.GREEN)
+    pc.printout("| | | | | / / /  ___|                               \n", pc.GREEN)
+    pc.printout("| | | | |/ /  \ `--.  ___ _ __ __ _ _ __   ___ _ __ \n", pc.GREEN)
+    pc.printout("| | | |    \   `--. \/ __| '__/ _` | '_ \ / _ \ '__|\n", pc.GREEN)
+    pc.printout("\ \_/ / |\  \ /\__/ / (__| | | (_| | |_) |  __/ |   \n", pc.GREEN)
+    pc.printout(" \___/\_| \_/ \____/ \___|_|  \__,_| .__/ \___|_|   \n", pc.GREEN)
+    pc.printout("                                   | |              \n", pc.GREEN)
+    pc.printout("                                   |_|              \n", pc.GREEN)
+    print("\n")
+    pc.printout("Code structure based on OSINTagram\n", pc.YELLOW)
     pc.printout("Alpha Build - Developed by Alberto Federico Olivieri\n\n", pc.CYAN)
     pc.printout("Type 'list' to show all allowed commands\n")
     pc.printout("-" * 80)
 
 
 def cmdlist():
-    pc.printout("credentials\t")
-    pc.printout("Insert Username, Password, and API Key", colour=pc.YELLOW)
-    pc.printout("targets\t")
-    pc.printout("Insert comma separated list of target(s)", colour=pc.YELLOW)
-    pc.printout("dates\t")
-    pc.printout("Insert date or date range", colour=pc.YELLOW)
+    pc.printout("config\t\t")
+    pc.printout("Insert Username, Password, and API Key\n", colour=pc.YELLOW)
+    pc.printout("dates\t\t")
+    pc.printout("Insert date or date range\n", colour=pc.YELLOW)
+    pc.printout("targets\t\t")
+    pc.printout("Insert whitespace separated list of target(s), will overwrite old ones\n", colour=pc.YELLOW)
+    pc.printout("tshow\t\t")
+    pc.printout("Show comma separated list of target(s)\n", colour=pc.YELLOW)
+
 
 
 def signal_handler(sig, frame):
@@ -52,19 +63,11 @@ def _quit():
     sys.exit(0)
 
 
-signal.signal(signal.SIGINT, signal_handler)
-if is_windows:
-    pyreadline.Readline().parse_and_bind("tab: complete")
-    pyreadline.Readline().set_completer(completer)
-else:
-    gnureadline.parse_and_bind("tab: complete")
-    gnureadline.set_completer(completer)
-
 welcome()
 
 parser = argparse.ArgumentParser(description="Description")
-parser.add_argument('targets', type=str,
-                    help='target identificator, single or comma separated list')
+parser.add_argument('targets', type=str, nargs='+',
+                    help='target identificator, single or whitespace separated list')
 
 args = parser.parse_args()
 
@@ -77,8 +80,9 @@ commands = {
     'quit':             _quit,
     'exit':             _quit,
     'credentials':      api.store_credentials,
-    'tagrets':          api.set_targets,
-    'date':             api.set_date,
+    'dates':            api.set_dates,
+    'targets':          api.set_targets,
+    'tshow':            api.show_targets
 }
 
 signal.signal(signal.SIGINT, signal_handler)
