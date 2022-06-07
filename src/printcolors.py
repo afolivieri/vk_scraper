@@ -3,7 +3,7 @@ import sys
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
 
-def has_colours(stream):
+def has_colours(stream: object) -> object:
     if not (hasattr(stream, "isatty") and stream.isatty):
         return False
     try:
@@ -17,7 +17,7 @@ def has_colours(stream):
 has_colours = has_colours(sys.stdout)
 
 
-def printout(text, colour=WHITE):
+def printout(text: str, colour: int = WHITE) -> None:
     if has_colours:
         seq = "\x1b[1;%dm" % (30 + colour) + text + "\x1b[0m"
         sys.stdout.write(seq)
