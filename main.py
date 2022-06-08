@@ -7,6 +7,13 @@ import argparse
 import sys
 import signal
 
+is_windows = False
+
+try:
+    import gnureadline
+except:
+    is_windows = True
+    import pyreadline
 
 def welcome() -> None:
     pc.printout("-" * 80 + "\n")
@@ -59,25 +66,13 @@ def _quit() -> None:
     pc.printout("Goodbye!\n", pc.RED)
     sys.exit(0)
 
-
-is_windows = False
-
 welcome()
 
 parser = argparse.ArgumentParser(description="Description")
 parser.add_argument('targets', type=str, nargs='+',
                     help='target identificator, single or whitespace separated list')
 
-parser.add_argument('-w', '--windows', action='store_true', default=False,
-                    help='use this flag if your operating system is Windows, otherwise ignore it')
-
 args = parser.parse_args()
-
-try:
-    import gnureadline
-except:
-    is_windows = args.windows
-    import pyreadline
 
 api = VkApiWrapper(args.targets)
 
