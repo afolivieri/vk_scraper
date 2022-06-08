@@ -1,3 +1,6 @@
+import collections.abc
+collections.Iterable = collections.abc.Iterable
+collections.Callable = collections.abc.Callable
 import vk
 from src import printcolors as pc
 from datetime import datetime
