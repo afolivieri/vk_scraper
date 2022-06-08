@@ -17,7 +17,7 @@ except:
 
 
 def welcome() -> None:
-    pc.printout("-" * 80)
+    pc.printout("-" * 80 + "\n")
     pc.printout(" _   _ _   __  _____                                \n", pc.GREEN)
     pc.printout("| | | | | / / /  ___|                               \n", pc.GREEN)
     pc.printout("| | | | |/ /  \ `--.  ___ _ __ __ _ _ __   ___ _ __ \n", pc.GREEN)
