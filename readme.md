@@ -14,6 +14,10 @@ The commands available are:
 |   targets   |  Isert whitespace separated list of target(s), will overwrite old ones   |
 |    tshow    |                   Show comma separated list of target                    |
 
+A small code example to start the application:
 
+`python3 main.py <target name>`
+
+The target name is retrieved from the target `url`: `https://vk.com/<target name>`
 
 NB This application uses your service access key from your VKontakte API
