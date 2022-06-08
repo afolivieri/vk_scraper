@@ -15,6 +15,7 @@ except:
     is_windows = True
     from pyreadline3.rlmain import BaseReadline as pyrdl
 
+
 def welcome() -> None:
     pc.printout("-" * 80 + "\n")
     pc.printout(" _   _ _   __  _____                                \n", pc.GREEN)
@@ -65,6 +66,7 @@ def completer(text: str, state: int) -> str or None:
 def _quit() -> None:
     pc.printout("Goodbye!\n", pc.RED)
     sys.exit(0)
+
 
 welcome()
 
