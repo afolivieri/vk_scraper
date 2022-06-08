@@ -13,7 +13,7 @@ try:
     import gnureadline
 except:
     is_windows = True
-    import pyreadline
+    from pyreadline3.rlmain import BaseReadline as pyrdl
 
 def welcome() -> None:
     pc.printout("-" * 80 + "\n")
@@ -91,8 +91,8 @@ commands = {
 
 signal.signal(signal.SIGINT, signal_handler)
 if is_windows:
-    pyreadline.Readline().parse_and_bind("tab: complete")
-    pyreadline.Readline().set_completer(completer)
+    pyrdl().parse_and_bind("tab: complete")
+    pyrdl().set_completer(completer)
 else:
     gnureadline.parse_and_bind("tab: complete")
     gnureadline.set_completer(completer)
