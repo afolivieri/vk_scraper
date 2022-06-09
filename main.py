@@ -2,7 +2,7 @@
 
 
 from src import printcolors as pc
-from src.vk_wrapper import VkApiWrapper
+from src.vk_scraper import VkScraper
 import argparse
 import sys
 import signal
@@ -36,8 +36,9 @@ def welcome() -> None:
 
 
 def cmdlist() -> None:
-    pc.printout("credentials\t")
-    pc.printout("Provide API Key\n", colour=pc.YELLOW)
+    # API discarded, credentials not needed
+    # pc.printout("credentials\t")
+    # pc.printout("Provide API Key\n", colour=pc.YELLOW)
     pc.printout("dates\t\t")
     pc.printout("Insert date or date range (dd/mm/yyyy format)\n", colour=pc.YELLOW)
     pc.printout("dshow\t\t")
@@ -76,14 +77,14 @@ parser.add_argument('targets', type=str, nargs='+',
 
 args = parser.parse_args()
 
-api = VkApiWrapper(args.targets)
+api = VkScraper(args.targets)
 
 commands = {
     'list': cmdlist,
     'help': cmdlist,
     'quit': _quit,
     'exit': _quit,
-    'credentials': api.store_credentials,
+    # 'credentials': api.store_credentials, API discarded, credentials not needed
     'dates': api.set_dates,
     'dshow': api.show_dates,
     'run': api.retrieve_targets_posts,
