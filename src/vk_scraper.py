@@ -162,7 +162,6 @@ class VkScraper:
 
     def date_filter(self, target_df: pd.DataFrame) -> pd.DataFrame:
         filtered_df = target_df[target_df["date"] >= self.start_date]
-        print(filtered_df)
         if self.end_date:
             filtered_df = filtered_df.loc[filtered_df["date"] <= self.end_date]
         else:
