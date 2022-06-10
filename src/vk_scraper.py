@@ -10,11 +10,16 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from ast import literal_eval
+from os import listdir
+from tqdm import tqdm
+import deepl
 
 
 class VkScraper:
 
     def __init__(self, targets: object) -> None:
+        self.key = None
         self.targets = targets
         self.start_date = datetime.timestamp(datetime.strptime("10/10/2006", "%d/%m/%Y"))
         self.end_date = None
@@ -161,31 +166,95 @@ class VkScraper:
         return pd.DataFrame.from_dict(data_dict)
 
     def date_filter(self, target_df: pd.DataFrame) -> pd.DataFrame:
-        filtered_df = target_df[target_df["date"] >= self.start_date]
+        # more intelligent way than just copying a df to avoid pandas error
+        filtered_df = target_df[target_df["date"] > self.start_date].copy()
         if self.end_date:
-            filtered_df = filtered_df.loc[filtered_df["date"] <= self.end_date]
+            filtered_df = filtered_df.loc[filtered_df["date"] <= self.end_date].copy()
         else:
             pass
-        filtered_df.loc[:,"date"] = pd.to_datetime(filtered_df["date"], unit="s")
+        filtered_df["date"] = pd.to_datetime(filtered_df["date"], unit="s", utc=True)
+        filtered_df["date"] = filtered_df["date"].dt.tz_convert(tz="Europe/Amsterdam")
         return filtered_df
 
     def retrieve_targets_posts(self) -> None:
-        if len(self.targets) == 1:
-            pc.printout(self.targets[0], pc.RED)
-            url_target = "https://vk.com/{}".format(self.targets[0])
+        for target in self.targets:
+            pc.printout(target, pc.RED)
+            url_target = "https://vk.com/{}".format(target)
             target_posts = self.retrieve_target_posts(url_target, self.start_date)
             target_df = self.extract_clean_data(target_posts)
             clean_target_df = self.date_filter(target_df)
-            clean_target_df.to_csv("./outputs/{}.csv".format(self.targets[0]), index=False, encoding='utf-8-sig')
+            clean_target_df.to_csv("./outputs/{}.csv".format(target), index=False, encoding='utf-8-sig')
+
+    @staticmethod
+    def read_check_credentials() -> tuple:
+        with open("./credentials/DeepL_key.txt", "r") as handle:
+            key_dict = literal_eval(handle.read())
+            if key_dict['DeepL_key']:
+                return True, key_dict['DeepL_key']
+            else:
+                return False, None
+
+    def check_target_csv(self) -> bool:
+        for target in self.targets:
+            target = "{}.csv".format(target)
+            if target in listdir("./outputs"):
+                return True
+            else:
+                return False
+
+    def update_credentials(self):
+        check, self.key = self.read_check_credentials()
+        if not check:
+            pc.printout("No API key credentials stored\n", pc.YELLOW)
+            pass
         else:
-            for target in self.targets:
-                print(2)
-                pc.printout(target, pc.RED)
-                url_target = "https://vk.com/{}".format(target)
-                target_posts = self.retrieve_target_posts(url_target, self.start_date)
-                target_df = self.extract_clean_data(target_posts)
-                clean_target_df = self.date_filter(target_df)
-                clean_target_df.to_csv("./outputs/{}.csv".format(target), index=False, encoding='utf-8-sig')
+            pc.printout("Please, insert your new DeepL API key: \n", pc.YELLOW)
+            self.key = input()
+            with open("./credentials/DeepL_key.txt", "r") as handle:
+                key_dict = literal_eval(handle.read())
+            key_dict['DeepL_key'] = self.key
+            with open("./credentials/DeepL_key.txt", "w") as handle:
+                handle.write(str(key_dict))
+
+    def ask_write_credentials(self) -> None:
+        check, self.key = self.read_check_credentials()
+        if check:
+            pass
+        else:
+            pc.printout("Please, insert your DeepL API key: \n", pc.YELLOW)
+            self.key = input()
+            with open("./credentials/DeepL_key.txt", "r") as handle:
+                key_dict = literal_eval(handle.read())
+            key_dict['DeepL_key'] = self.key
+            with open("./credentials/DeepL_key.txt", "w") as handle:
+                handle.write(str(key_dict))
+
+    def deepl_translate(self) -> None:
+        for target in self.targets:
+            pc.printout("-" * 80)
+            pc.printout("\nStarting {} Translation\n".format(target), pc.YELLOW)
+            eng_text = []
+            target_path = "./outputs/{}.csv".format(target)
+            target_df = pd.read_csv(target_path)
+            for text in tqdm(target_df["text"], bar_format='{l_bar}{bar:40}{r_bar}{bar:-10b}'):
+                translator = deepl.Translator(self.key)
+
+                result = translator.translate_text(str(text), target_lang="EN-US")
+                eng_text.append(result.text)
+            target_df["eng_text"] = eng_text
+            target_df = target_df[["date", "text", "eng_text", "likes", "href"]]
+            target_df.to_csv("./outputs/{}_translated.csv".format(target), index=False, encoding='utf-8-sig')
+            pc.printout("Translation Saved!\n", pc.YELLOW)
+
+    def translating_target_csv(self) -> None:
+        self.ask_write_credentials()
+        csv_check = self.check_target_csv()
+        if not csv_check:
+            pc.printout("One or more target CSVs are not present", pc.RED)
+            return None
+        else:
+            self.deepl_translate()
+
 
 """
 vk API isn't working as needed, only top 100 posts max return

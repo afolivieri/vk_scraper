@@ -11,10 +11,14 @@ The commands available are:
 |  dshow   |                            Show stored dates                             |
 |   run    | When everything is set, the scraper will start running with this command |
 | targets  |  Isert whitespace separated list of target(s), will overwrite old ones   |
+|translate|This command will start the translation of the targets you have set in English. NB, requires DeepL API key
 |  tshow   |                   Show comma separated list of target                    |
+update|This commands is used to update the API key credentials
 
 A small code example to start the application:
 
 `python3 main.py <target name>`
 
 The target name is retrieved from the target `url`: `https://vk.com/<target name>`
+
+NB Timezone is set for `"Europe/Amsterdam"`, at this moment you have to manually change it in code

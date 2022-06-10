@@ -13,7 +13,7 @@ try:
     import gnureadline
 except:
     is_windows = True
-    from pyreadline3.rlmain import BaseReadline as pyrdl
+    from pyreadline3.rlmain import BaseReadline as PyRdl
 
 
 def welcome() -> None:
@@ -47,8 +47,12 @@ def cmdlist() -> None:
     pc.printout("When everything is set, the scraper will start running with this command\n", colour=pc.YELLOW)
     pc.printout("targets\t\t")
     pc.printout("Insert whitespace separated list of target(s), will overwrite old ones\n", colour=pc.YELLOW)
+    pc.printout("translate\t")
+    pc.printout("After downloading targets walls you can translate it if in possession of DeepL API key\n", colour=pc.YELLOW)
     pc.printout("tshow\t\t")
     pc.printout("Show comma separated list of target(s)\n", colour=pc.YELLOW)
+    pc.printout("update\t\t")
+    pc.printout("Update translation credentials\n", colour=pc.YELLOW)
 
 
 def signal_handler(sig: object, frame: object) -> None:
@@ -89,13 +93,15 @@ commands = {
     'dshow': api.show_dates,
     'run': api.retrieve_targets_posts,
     'targets': api.set_targets,
-    'tshow': api.show_targets
+    'translate': api.translating_target_csv,
+    'tshow': api.show_targets,
+    'update': api.update_credentials
 }
 
 signal.signal(signal.SIGINT, signal_handler)
 if is_windows:
-    pyrdl().parse_and_bind("tab: complete")
-    pyrdl().set_completer(completer)
+    PyRdl().parse_and_bind("tab: complete")
+    PyRdl().set_completer(completer)
 else:
     gnureadline.parse_and_bind("tab: complete")
     gnureadline.set_completer(completer)
