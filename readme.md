@@ -23,5 +23,5 @@ The target name is retrieved from the target `url`: `https://vk.com/<target name
 
 NB Timezone is set for `"Europe/Amsterdam"`, I have to understand how VK use their timestamps, so the post date could be unreliable of a couple of hours at the moment.
 
-**For any new feature, but, help, etc. Just contact me or open a ticket.**
+**For any new feature, but, help, etc. Just contact me @ albertofedericoolivieri@gmail.com or open a ticket.**
 
