@@ -18,7 +18,7 @@ import deepl
 
 class VkScraper:
 
-    def __init__(self, targets: object) -> None:
+    def __init__(self, targets="no target") -> None:
         self.key = None
         self.targets = targets
         self.start_date = datetime.timestamp(datetime.strptime("10/10/2006", "%d/%m/%Y"))

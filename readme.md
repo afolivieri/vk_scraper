@@ -5,23 +5,24 @@ It is also possible to input a start and an end date to filter out the results. 
 
 The commands available are:
 
-| Command  |                               Description                                |
-|:--------:|:------------------------------------------------------------------------:|
-|  dates   |              Insert date or date range (dd/mm/yyyy format)               |
-|  dshow   |                            Show stored dates                             |
-|   run    | When everything is set, the scraper will start running with this command |
-| targets  |  Isert whitespace separated list of target(s), will overwrite old ones   |
-|translate|This command will start the translation of the targets you have set in English. NB, requires DeepL API key
-|  tshow   |                   Show comma separated list of target                    |
-update|This commands is used to update the API key credentials
+|  Command  |                                                Description                                                 |
+|:---------:|:----------------------------------------------------------------------------------------------------------:|
+|   dates   |                               Insert date or date range (dd/mm/yyyy format)                                |
+| download  |                  From a commaseparated list of post links it will download the thumbnails                  |
+|   dshow   |                                             Show stored dates                                              |
+|    run    |                  When everything is set, the scraper will start running with this command                  |
+|  targets  |                   Isert whitespace separated list of target(s), will overwrite old ones                    |
+| translate | This command will start the translation of the targets you have set in English. NB, requires DeepL API key |
+|   tshow   |                                    Show comma separated list of target                                     |
+|  update   |                          This commands is used to update the API key credentials                           |
 
-A small code example to start the application:
+A small code example to start the application, the `<target name>` is optional, it can be set within the application using `targets`:
 
-`python3 main.py <target name>`
+`python3 main.py -t <target name>`
 
 The target name is retrieved from the target `url`: `https://vk.com/<target name>`
 
 NB Timezone is set for `"Europe/Amsterdam"`, I have to understand how VK use their timestamps, so the post date could be unreliable of a couple of hours at the moment.
 
-**For any new feature, but, help, etc. Just contact me @ albertofedericoolivieri@gmail.com or open a ticket.**
+**For any new feature, bug, help, etc. Just contact me @ albertofedericoolivieri@gmail.com or open a ticket.**
 

@@ -3,6 +3,7 @@
 
 from src import printcolors as pc
 from src.vk_scraper import VkScraper
+from src.vk_downloader import VkDownloader
 import argparse
 import sys
 import signal
@@ -41,6 +42,8 @@ def cmdlist() -> None:
     # pc.printout("Provide API Key\n", colour=pc.YELLOW)
     pc.printout("dates\t\t")
     pc.printout("Insert date or date range (dd/mm/yyyy format)\n", colour=pc.YELLOW)
+    pc.printout("download\t")
+    pc.printout("Downloads media from link if they exist\n", colour=pc.YELLOW)
     pc.printout("dshow\t\t")
     pc.printout("Show stored dates\n", colour=pc.YELLOW)
     pc.printout("run\t\t")
@@ -76,12 +79,13 @@ def _quit() -> None:
 welcome()
 
 parser = argparse.ArgumentParser(description="Description")
-parser.add_argument('targets', type=str, nargs='+',
+parser.add_argument('-t', '--targets', type=str, nargs='+',
                     help='target identificator, single or whitespace separated list')
 
 args = parser.parse_args()
 
-api = VkScraper(args.targets)
+api_1 = VkScraper(args.targets)
+api_2 = VkDownloader()
 
 commands = {
     'list': cmdlist,
@@ -89,13 +93,14 @@ commands = {
     'quit': _quit,
     'exit': _quit,
     # 'credentials': api.store_credentials, API discarded, credentials not needed
-    'dates': api.set_dates,
-    'dshow': api.show_dates,
-    'run': api.retrieve_targets_posts,
-    'targets': api.set_targets,
-    'translate': api.translating_target_csv,
-    'tshow': api.show_targets,
-    'update': api.update_credentials
+    'dates': api_1.set_dates,
+    'download': api_2.download_media,
+    'dshow': api_1.show_dates,
+    'run': api_1.retrieve_targets_posts,
+    'targets': api_1.set_targets,
+    'translate': api_1.translating_target_csv,
+    'tshow': api_1.show_targets,
+    'update': api_1.update_credentials
 }
 
 signal.signal(signal.SIGINT, signal_handler)
