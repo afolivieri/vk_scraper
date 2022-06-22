@@ -125,6 +125,7 @@ class VkScraper:
             posts = soup.find_all("div", {"class": "_post"})
             try:
                 date = self.extract_correct_last_date(posts)
+                pc.printout(date + "\n", pc.BLUE)
                 converted_time = self.scraped_dates_transformer(date)
             except IndexError:
                 converted_time = converted_time
@@ -147,12 +148,12 @@ class VkScraper:
                     date = data_href.find("span", {"class": "rel_date"})["abs_time"]
                     date = self.scraped_dates_transformer(date)
                     data_dict["date"].append(date)
-                    pc.printout(str(datetime.fromtimestamp(date)) + "\n", pc.BLUE)
+                    # pc.printout(str(datetime.fromtimestamp(date)) + "\n", pc.BLUE)
                 except KeyError:
                     date = data_href.find("span", {"class": "rel_date"}).text
                     date = self.scraped_dates_transformer(date)
                     data_dict["date"].append(date)
-                    pc.printout(str(datetime.fromtimestamp(date)) + "\n", pc.BLUE)
+                    # pc.printout(str(datetime.fromtimestamp(date)) + "\n", pc.BLUE)
             text = post.find("div", {"class": "wall_post_cont"})
             if text:
                 text = text.find("div", {"class": "wall_post_text"})

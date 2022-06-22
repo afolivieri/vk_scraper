@@ -49,7 +49,7 @@ class VkDownloader:
         for thumbnail_url in thumbnail_url_list:
             response = requests.get(thumbnail_url)
             filename = "{}_{}".format(name, str(counter))
-            with open("./outputs/{}/{}".format(name, filename), "wb") as handle:
+            with open("./outputs/{}/{}.jpg".format(name, filename), "wb") as handle:
                 handle.write(response.content)
             self.conversion_dict["img_name"].append(filename)
             counter += 1
