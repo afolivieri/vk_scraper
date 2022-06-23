@@ -106,8 +106,9 @@ class VkScraper:
     def retrieve_target_posts(self, target_url: str, start_date: float) -> list:
         options = Options()
         options.add_argument("--headless")
+        options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=options)
-        scroll_pause_time = 0.5
+        scroll_pause_time = 1
         driver.get(target_url)
         converted_time = datetime.timestamp(datetime.now())
         _posts = []
@@ -118,8 +119,9 @@ class VkScraper:
                 html = driver.page_source
                 soup = BeautifulSoup(html, "html.parser")
                 posts = soup.find_all("div", {"class": "_post"})
+                check_date_posts = posts[-15:]
                 try:
-                    date = self.extract_correct_last_date(posts)
+                    date = self.extract_correct_last_date(check_date_posts)
                     pc.printout(date + "\n", pc.BLUE)
                     converted_time = self.scraped_dates_transformer(date)
                 except IndexError:
