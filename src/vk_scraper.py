@@ -109,26 +109,24 @@ class VkScraper:
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=options)
         scroll_pause_time = 0.5
         driver.get(target_url)
-        last_height = driver.execute_script("return document.body.scrollHeight")
         converted_time = datetime.timestamp(datetime.now())
         _posts = []
+        iter_number = 0
         while converted_time > start_date:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            html = driver.page_source
-            soup = BeautifulSoup(html, "html.parser")
-            posts = soup.find_all("div", {"class": "_post"})
-            try:
-                date = self.extract_correct_last_date(posts)
-                pc.printout(date + "\n", pc.BLUE)
-                converted_time = self.scraped_dates_transformer(date)
-            except IndexError:
-                converted_time = converted_time
-            _posts = posts
+            if (iter_number % 25) == 0:
+                html = driver.page_source
+                soup = BeautifulSoup(html, "html.parser")
+                posts = soup.find_all("div", {"class": "_post"})
+                try:
+                    date = self.extract_correct_last_date(posts)
+                    pc.printout(date + "\n", pc.BLUE)
+                    converted_time = self.scraped_dates_transformer(date)
+                except IndexError:
+                    converted_time = converted_time
+                _posts = posts
+            iter_number += 1
             time.sleep(scroll_pause_time)
-            new_height = driver.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                break
-            last_height = new_height
 
         return _posts
 
@@ -155,6 +153,8 @@ class VkScraper:
                     data_dict["text"].append(None)
             likes = post.find_all("div", {"class": "PostButtonReactions__title"})
             if likes:
+                # fix number over 1000 from string to int
+                # likes = int(str(likes).replace(",", ""))
                 data_dict["likes"].append(likes[0].text)
         return pd.DataFrame.from_dict(data_dict)
 
