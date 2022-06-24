@@ -1,13 +1,16 @@
+import os
 from src import printcolors as pc
-import bs4
 import pandas as pd
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
 from datetime import timedelta
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
+# from selenium.webdriver.firefox.service import Service as FirefoxService
+# from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from ast import literal_eval
 from os import listdir
@@ -91,49 +94,51 @@ class VkScraper:
         return datetime.timestamp(converted_time)
 
     @staticmethod
-    def extract_correct_last_date(soup: bs4.BeautifulSoup.find_all) -> str:
-        dates = []
-        for post in soup:
-            dates_soup = post.find("a", {"class": "post_link"})  # .find("span", {"class": "rel_date"})
-            if dates_soup:
-                date = dates_soup.find("span", {"class": "rel_date"})
-                try:
-                    dates.append(date["abs_time"])
-                except KeyError:
-                    dates.append(date.text)
-        return dates[-1]
+    def extract_correct_last_date(web_element: WebElement) -> str:
+        dates_html = web_element.get_attribute("innerHTML")
+        dates_soup = BeautifulSoup(dates_html, "html.parser")
+        date = dates_soup.find("span", {"class": "rel_date"})
+        try:
+            return date["abs_time"]
+        except KeyError:
+            return date.text
 
-    def retrieve_target_posts(self, target_url: str, start_date: float) -> list:
-        options = Options()
+    def retrieve_target_posts(self, target_url: str, start_date: float) -> BeautifulSoup:
+        """
+        os.environ["GH_TOKEN"] = ""
+        options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
-        options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options=options)
-        scroll_pause_time = 1
+        service = FirefoxService(executable_path=GeckoDriverManager().install())
+        driver = webdriver.Firefox(service=service, options=options)
+        """
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
+        service = Service(executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+
+        scroll_pause_time = 0.5
         driver.get(target_url)
         converted_time = datetime.timestamp(datetime.now())
-        _posts = []
         iter_number = 0
         while converted_time > start_date:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             if (iter_number % 25) == 0:
-                html = driver.page_source
-                soup = BeautifulSoup(html, "html.parser")
-                posts = soup.find_all("div", {"class": "_post"})
-                check_date_posts = posts[-15:]
+                post_elements = driver.find_elements(By.CLASS_NAME, "post_link")
                 try:
-                    date = self.extract_correct_last_date(check_date_posts)
+                    date = self.extract_correct_last_date(post_elements[-1])
                     pc.printout(date + "\n", pc.BLUE)
                     converted_time = self.scraped_dates_transformer(date)
                 except IndexError:
                     converted_time = converted_time
-                _posts = posts
             iter_number += 1
             time.sleep(scroll_pause_time)
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+        return soup
 
-        return _posts
-
-    def extract_clean_data(self, unclean_posts: list) -> pd.DataFrame:
+    def extract_clean_data(self, post_soup: BeautifulSoup) -> pd.DataFrame:
         data_dict = {"date": [], "text": [], "likes": [], "href": []}
+        unclean_posts = post_soup.find_all("div", {"class": "_post_content"})
         for post in unclean_posts:
             data_href = post.find("a", {"class": "post_link"})
             if data_href:
