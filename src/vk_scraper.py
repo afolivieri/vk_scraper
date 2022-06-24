@@ -1,4 +1,4 @@
-import os
+# import os
 from src import printcolors as pc
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -136,7 +136,7 @@ class VkScraper:
         soup = BeautifulSoup(html, "html.parser")
         return soup
 
-    def extract_clean_data(self, post_soup: BeautifulSoup) -> pd.DataFrame:
+    def extract_clean_data(self, post_soup: BeautifulSoup) -> dict:
         data_dict = {"date": [], "text": [], "likes": [], "href": []}
         unclean_posts = post_soup.find_all("div", {"class": "_post_content"})
         for post in unclean_posts:
@@ -160,13 +160,14 @@ class VkScraper:
                     data_dict["text"].append(None)
             likes = post.find_all("div", {"class": "PostButtonReactions__title"})
             if likes:
-                # fix number over 1000 from string to int
-                # likes = int(str(likes).replace(",", ""))
-                data_dict["likes"].append(likes[0].text)
-        return pd.DataFrame.from_dict(data_dict)
+                likes = likes[0].text
+                likes = int(likes.replace(",", ""))
+                data_dict["likes"].append(likes)
+        return data_dict
 
-    def date_filter(self, target_df: pd.DataFrame) -> pd.DataFrame:
+    def date_filter(self, target_dict: dict) -> pd.DataFrame:
         # find a more intelligent way than just copying a df to avoid pandas error
+        target_df = pd.DataFrame.from_dict(target_dict)
         filtered_df = target_df[target_df["date"] > self.start_date].copy()
         if self.end_date:
             filtered_df = filtered_df.loc[filtered_df["date"] <= self.end_date].copy()
@@ -181,8 +182,8 @@ class VkScraper:
             pc.printout(target, pc.RED)
             url_target = "https://vk.com/{}".format(target)
             target_posts = self.retrieve_target_posts(url_target, self.start_date)
-            target_df = self.extract_clean_data(target_posts)
-            clean_target_df = self.date_filter(target_df)
+            target_dict = self.extract_clean_data(target_posts)
+            clean_target_df = self.date_filter(target_dict)
             clean_target_df.to_csv("./outputs/{}.csv".format(target), index=False, encoding='utf-8-sig')
 
     @staticmethod
