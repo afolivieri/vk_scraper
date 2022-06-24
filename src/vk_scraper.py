@@ -196,8 +196,6 @@ class VkScraper:
             driver = self.retrieve_target_posts(url_target, self.start_date)
             post_soup = self.from_sel_to_bs(driver)
             target_dict = self.extract_clean_data(post_soup)
-            with open("test_dict.txt", "w") as handle:
-                handle.write(str(target_dict))
             clean_target_df = self.date_filter(target_dict)
             clean_target_df.to_csv("./outputs/{}.csv".format(target), index=False, encoding='utf-8-sig')
 
