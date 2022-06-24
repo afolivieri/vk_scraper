@@ -1,7 +1,7 @@
 ## VK SCRAPER
 
 ### CAUTION, I had to switch from Chrome headless browser to Firefox headless browser, for issues caused by how Chrome stores data on Linux (on RAM instead of `/temp`), so for making this run you now have to input manually in the code a GitHub Personal access tokens, in the next couple of days I'll add a command to input it from the CLI
-(src -> vk_scraper.py -> retrieve_target_posts -> os.environ["GH_TOKEN"] = "<HERE>")
+(src -> vk_scraper.py -> retrieve_target_posts -> os.environ["GH_TOKEN"] = "INSERT YOUR TOKEN HERE")
 
 This application will take the content published by a VKontakte page, and it will output a table with the **date**, the **text**, the **number of likes**, and the **original link** to the post.
 It is also possible to input a start and an end date to filter out the results. The output will be saved as a **CSV** file in the output folder.
