@@ -22,7 +22,7 @@ A small code example to start the application, the `<target name>` is optional, 
 
 The target name is retrieved from the target `url`: `https://vk.com/<target name>`
 
-NB Timezone is set for `"Europe/Amsterdam"`, I have to understand how VK use their timestamps, so the post date could be unreliable of a couple of hours at the moment.
+NB Timezone is set for `"Europe/Moscow"`
 
 **For any new feature, bug, help, etc. Just contact me @ albertofedericoolivieri@gmail.com or open a ticket.**
 

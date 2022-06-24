@@ -1,4 +1,4 @@
-# import os
+import os
 from src import printcolors as pc
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -8,10 +8,10 @@ from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-# from selenium.webdriver.firefox.service import Service as FirefoxService
-# from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.chrome import ChromeDriverManager
 from ast import literal_eval
 from os import listdir
 from tqdm import tqdm
@@ -103,8 +103,8 @@ class VkScraper:
         except KeyError:
             return date.text
 
-    def retrieve_target_posts(self, target_url: str, start_date: float) -> BeautifulSoup:
-        """
+    def retrieve_target_posts(self, target_url: str, start_date: float) -> webdriver:
+
         os.environ["GH_TOKEN"] = ""
         options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
@@ -115,7 +115,7 @@ class VkScraper:
         options.add_argument("--headless")
         service = Service(executable_path=ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
-
+        """
         scroll_pause_time = 0.5
         driver.get(target_url)
         converted_time = datetime.timestamp(datetime.now())
@@ -132,14 +132,24 @@ class VkScraper:
                     converted_time = converted_time
             iter_number += 1
             time.sleep(scroll_pause_time)
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
-        return soup
+        return driver
 
-    def extract_clean_data(self, post_soup: BeautifulSoup) -> dict:
+    @staticmethod
+    def from_sel_to_bs(driver: webdriver) -> list:
+        soup_posts = []
+        post_elements = driver.find_elements(By.CLASS_NAME, "_post_content")
+        pc.printout("Saving posts from HTML...\n", pc.BLUE)
+        for element in tqdm(post_elements):
+            html = element.get_attribute("innerHTML")
+            soup = BeautifulSoup(html, "html.parser")
+            soup_posts.append(soup)
+        driver.close()
+        return soup_posts
+
+    def extract_clean_data(self, unclean_posts: list) -> dict:
         data_dict = {"date": [], "text": [], "likes": [], "href": []}
-        unclean_posts = post_soup.find_all("div", {"class": "_post_content"})
-        for post in unclean_posts:
+        pc.printout("Extracting data...\n", pc.BLUE)
+        for post in tqdm(unclean_posts):
             data_href = post.find("a", {"class": "post_link"})
             if data_href:
                 data_dict["href"].append("https://vk.com{}".format(data_href["href"]))
@@ -166,6 +176,7 @@ class VkScraper:
         return data_dict
 
     def date_filter(self, target_dict: dict) -> pd.DataFrame:
+        pc.printout("Date filtering in progress\n", pc.BLUE)
         # find a more intelligent way than just copying a df to avoid pandas error
         target_df = pd.DataFrame.from_dict(target_dict)
         filtered_df = target_df[target_df["date"] > self.start_date].copy()
@@ -174,15 +185,19 @@ class VkScraper:
         else:
             pass
         filtered_df["date"] = pd.to_datetime(filtered_df["date"], unit="s", utc=True)
-        filtered_df["date"] = filtered_df["date"].dt.tz_convert(tz="Europe/Amsterdam")
+        filtered_df["date"] = filtered_df["date"].dt.tz_convert(tz="Europe/Moscow")
+        pc.printout("Date filtering completed\n", pc.BLUE)
         return filtered_df
 
     def retrieve_targets_posts(self) -> None:
         for target in self.targets:
             pc.printout(target, pc.RED)
             url_target = "https://vk.com/{}".format(target)
-            target_posts = self.retrieve_target_posts(url_target, self.start_date)
-            target_dict = self.extract_clean_data(target_posts)
+            driver = self.retrieve_target_posts(url_target, self.start_date)
+            post_soup = self.from_sel_to_bs(driver)
+            target_dict = self.extract_clean_data(post_soup)
+            with open("test_dict.txt", "w") as handle:
+                handle.write(str(target_dict))
             clean_target_df = self.date_filter(target_dict)
             clean_target_df.to_csv("./outputs/{}.csv".format(target), index=False, encoding='utf-8-sig')
 
