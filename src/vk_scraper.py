@@ -108,6 +108,7 @@ class VkScraper:
         os.environ["GH_TOKEN"] = ""
         options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
+        options.add_argument("--incognito")
         service = FirefoxService(executable_path=GeckoDriverManager().install())
         driver = webdriver.Firefox(service=service, options=options)
         """
@@ -138,8 +139,9 @@ class VkScraper:
     def from_sel_to_bs(driver: webdriver) -> list:
         soup_posts = []
         post_elements = driver.find_elements(By.CLASS_NAME, "_post_content")
+        pc.printout("-" * 80 + "\n", pc.BLUE)
         pc.printout("Saving posts from HTML...\n", pc.BLUE)
-        for element in tqdm(post_elements):
+        for element in tqdm(post_elements, bar_format='{l_bar}{bar:40}{r_bar}{bar:-10b}'):
             html = element.get_attribute("innerHTML")
             soup = BeautifulSoup(html, "html.parser")
             soup_posts.append(soup)
@@ -149,7 +151,7 @@ class VkScraper:
     def extract_clean_data(self, unclean_posts: list) -> dict:
         data_dict = {"date": [], "text": [], "likes": [], "href": []}
         pc.printout("Extracting data...\n", pc.BLUE)
-        for post in tqdm(unclean_posts):
+        for post in tqdm(unclean_posts, bar_format='{l_bar}{bar:40}{r_bar}{bar:-10b}'):
             data_href = post.find("a", {"class": "post_link"})
             if data_href:
                 data_dict["href"].append("https://vk.com{}".format(data_href["href"]))
@@ -171,7 +173,10 @@ class VkScraper:
             likes = post.find_all("div", {"class": "PostButtonReactions__title"})
             if likes:
                 likes = likes[0].text
-                likes = int(likes.replace(",", ""))
+                if likes:
+                    likes = int(likes.replace(",", ""))
+                else:
+                    likes = None
                 data_dict["likes"].append(likes)
         return data_dict
 
@@ -187,6 +192,7 @@ class VkScraper:
         filtered_df["date"] = pd.to_datetime(filtered_df["date"], unit="s", utc=True)
         filtered_df["date"] = filtered_df["date"].dt.tz_convert(tz="Europe/Moscow")
         pc.printout("Date filtering completed\n", pc.BLUE)
+        pc.printout("-" * 80 + "\n", pc.BLUE)
         return filtered_df
 
     def retrieve_targets_posts(self) -> None:
@@ -245,8 +251,8 @@ class VkScraper:
 
     def deepl_translate(self) -> None:
         for target in self.targets:
-            pc.printout("-" * 80)
-            pc.printout("\nStarting {} Translation\n".format(target), pc.YELLOW)
+            pc.printout("-" * 80 + "\n")
+            pc.printout("Starting {} Translation\n".format(target), pc.YELLOW)
             eng_text = []
             target_path = "./outputs/{}.csv".format(target)
             target_df = pd.read_csv(target_path)

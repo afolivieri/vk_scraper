@@ -23,11 +23,13 @@ A small code example to start the application, the `<target name>` is optional, 
 
 `python3 main.py -t <target name>`
 
+All of the data you willscrape or download will be found in the `outputs` folder.
+
 The target name is retrieved from the target `url`: `https://vk.com/<target name>`
 
 NB Timezone is set for `"Europe/Moscow"`, I'm still figuring out how TZ work on VK
   
- For translation, you need a DeepL API key, if you have one just run `translate` and if not altready saved it will ask you for an API key.
+For translation, you need a DeepL API key, if you have one just run `translate` and if not altready saved it will ask you for an API key.
 
 **For any new feature, bug, help, etc. Just contact me @ albertofedericoolivieri@gmail.com or open a ticket.**
 
