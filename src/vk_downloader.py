@@ -12,6 +12,7 @@ import os
 import pandas as pd
 from src import printcolors as pc
 from tqdm import tqdm
+from src.git_credentials import GitCredentialsHandler
 
 
 class VkDownloader:
@@ -30,7 +31,7 @@ class VkDownloader:
 
     def thumbnail_url(self, url_list: list) -> list:
         thumbnail_url_list = []
-        os.environ["GH_TOKEN"] = ""
+        os.environ["GH_TOKEN"] = GitCredentialsHandler().retrieve_key()
         options = webdriver.FirefoxOptions()
         options.add_argument("--headless")
         options.add_argument("--incognito")

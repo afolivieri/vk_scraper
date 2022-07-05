@@ -7,8 +7,9 @@ from src.vk_downloader import VkDownloader
 import argparse
 import sys
 import signal
+from src.git_credentials import GitCredentialsHandler
 
-is_windows = False
+is_windows = True
 
 try:
     import gnureadline
@@ -46,6 +47,8 @@ def cmdlist() -> None:
     pc.printout("Downloads media from link if they exist\n", colour=pc.YELLOW)
     pc.printout("dshow\t\t")
     pc.printout("Show stored dates\n", colour=pc.YELLOW)
+    pc.printout("gitkey\t\t")
+    pc.printout("Change GitHub Private Access Key\n", colour=pc.YELLOW)
     pc.printout("run\t\t")
     pc.printout("When everything is set, the scraper will start running with this command\n", colour=pc.YELLOW)
     pc.printout("targets\t\t")
@@ -86,6 +89,7 @@ args = parser.parse_args()
 
 api_1 = VkScraper(args.targets)
 api_2 = VkDownloader()
+api_3 = GitCredentialsHandler()
 
 commands = {
     'list': cmdlist,
@@ -96,6 +100,7 @@ commands = {
     'dates': api_1.set_dates,
     'download': api_2.download_media,
     'dshow': api_1.show_dates,
+    'gitkey': api_3.set_github_key,
     'run': api_1.retrieve_targets_posts,
     'targets': api_1.set_targets,
     'translate': api_1.translating_target_csv,

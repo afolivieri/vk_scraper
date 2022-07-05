@@ -16,6 +16,7 @@ from ast import literal_eval
 from os import listdir
 from tqdm import tqdm
 import deepl
+from src.git_credentials import GitCredentialsHandler
 
 
 class VkScraper:
@@ -104,10 +105,9 @@ class VkScraper:
             return date.text
 
     def retrieve_target_posts(self, target_url: str, start_date: float) -> webdriver:
-
-        os.environ["GH_TOKEN"] = ""
+        os.environ["GH_TOKEN"] = GitCredentialsHandler().retrieve_key()
         options = webdriver.FirefoxOptions()
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
         options.add_argument("--incognito")
         service = FirefoxService(executable_path=GeckoDriverManager().install())
         driver = webdriver.Firefox(service=service, options=options)
@@ -119,6 +119,7 @@ class VkScraper:
         """
         scroll_pause_time = 0.5
         driver.get(target_url)
+        time.sleep(5)
         converted_time = datetime.timestamp(datetime.now())
         iter_number = 0
         while converted_time > start_date:
