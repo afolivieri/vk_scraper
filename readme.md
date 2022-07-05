@@ -1,8 +1,5 @@
 ## VK SCRAPER
-
-### CAUTION, I had to switch from Chrome headless browser to Firefox headless browser, for issues caused by how Chrome stores data on Linux (on RAM instead of `/temp`), so for making this run you now have to input manually in the code a GitHub Personal access tokens, in the next couple of days I'll add a command to input it from the CLI
-(src -> vk_scraper.py -> retrieve_target_posts -> os.environ["GH_TOKEN"] = "INSERT YOUR TOKEN HERE")
-
+To run this application you will need a GitHub Private Access Key, the app will ask to insert one on startup if not present. 
 This application will take the content published by a VKontakte page, and it will output a table with the **date**, the **text**, the **number of likes**, and the **original link** to the post.
 It is also possible to input a start and an end date to filter out the results. The output will be saved as a **CSV** file in the output folder.
 
@@ -13,6 +10,7 @@ The commands available are:
 |   dates   |                               Insert date or date range (dd/mm/yyyy format)                                |
 | download  |                  From a commaseparated list of post links it will download the thumbnails                  |
 |   dshow   |                                             Show stored dates                                              |
+|gitkey|You can change the saved GitHub Private Access Key that you saved|
 |    run    |                  When everything is set, the scraper will start running with this command                  |
 |  targets  |                   Isert whitespace separated list of target(s), will overwrite old ones                    |
 | translate | This command will start the translation of the targets you have set in English. NB, requires DeepL API key |
